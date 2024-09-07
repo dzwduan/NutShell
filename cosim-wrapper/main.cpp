@@ -43,9 +43,17 @@ int main() {
     std::map<std::string, void*> function_map = load_functions(file_path, handle);
 
     // 打印加载的函数指针地址
-    for (const auto& pair : function_map) {
-        std::cout << pair.first << ": " << pair.second << std::endl;
-    }
+    // for (const auto& pair : function_map) {
+    //     std::cout << pair.first << ": " << pair.second << std::endl;
+    // }
+
+    auto difftest_step = (int (*)(void))function_map["difftest_step"];
+    auto difftest_init = (void (*)(void))function_map["difftest_init"];
+    auto difftest_raise_intr = (void (*)(int))function_map["difftest_raise_intr"];
+    auto difftest_getregs = (void (*)(void))function_map["difftest_getregs"];
+    auto difftest_setregs = (void (*)(void))function_map["difftest_setregs"];
+
+    
 
     dlclose(handle);
     return 0;
