@@ -351,3 +351,4 @@ fpga/.Xil/
 .vscode/
 .metals/
 .bloop
+.sv_cache
