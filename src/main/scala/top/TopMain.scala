@@ -20,9 +20,10 @@ import nutcore.NutCoreConfig
 import system.NutShell
 import device.{AXI4VGA}
 import sim.SimTop
-
+import chisel3.stage.ChiselGeneratorAnnotation
+import circt.stage._
 import chisel3._
-import chisel3.stage._
+
 
 class Top extends Module {
   val io = IO(new Bundle{})
@@ -63,13 +64,18 @@ object TopMain extends App {
     case (f, v) =>
       println(f + " = " + v)
   }
-  if (board == "sim") {
-    (new ChiselStage).execute(args, Seq(
-      ChiselGeneratorAnnotation(() => new SimTop))
-    )
-  } else {
-    (new ChiselStage).execute(args, Seq(
-      ChiselGeneratorAnnotation(() => new Top))
-    )
+
+  val generator = if (board == "sim") {
+    ChiselGeneratorAnnotation(() => new SimTop)
   }
+  else {
+    ChiselGeneratorAnnotation(() => new Top)
+  }
+  var exe_args = newArgs.filter{
+    value => value.forall(char => char!='=')
+  }
+  (new ChiselStage).execute(newArgs, Seq(generator)
+    :+ CIRCTTargetAnnotation(CIRCTTarget.SystemVerilog)
+    :+ FirtoolOption("--disable-annotation-unknown")
+  )
 }
