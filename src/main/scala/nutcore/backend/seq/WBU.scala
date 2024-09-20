@@ -57,6 +57,7 @@ class WBU(implicit val p: NutCoreConfig) extends NutCoreModule{
   BoringUtils.addSource(falseWire, "perfCntCondMultiCommit")
   
   if (!p.FPGAPlatform) {
+    if (EnableDifftest) {
     val difftest_commit = Module(new DifftestInstrCommit)
     difftest_commit.io := DontCare
     difftest_commit.io.clock    := clock
@@ -90,6 +91,7 @@ class WBU(implicit val p: NutCoreConfig) extends NutCoreModule{
     // when(runahead_commit.io.valid) {
     //   printf("DUT commit branch %x\n", runahead_commit.io.pc)
     // }
+    }
   } else {
     BoringUtils.addSource(io.in.valid, "ilaWBUvalid")
     BoringUtils.addSource(io.in.bits.decode.cf.pc, "ilaWBUpc")

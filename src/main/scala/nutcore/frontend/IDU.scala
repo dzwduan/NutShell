@@ -207,6 +207,7 @@ class IDU(implicit val p: NutCoreConfig) extends NutCoreModule with HasInstrType
 
   val checkpoint_id = RegInit(0.U(64.W))
 
+  if (EnableDifftest) {
   // debug runahead
   val runahead = Module(new DifftestRunaheadEvent)
   runahead.io := DontCare
@@ -224,7 +225,7 @@ class IDU(implicit val p: NutCoreConfig) extends NutCoreModule with HasInstrType
   // when(runahead.io.valid) {
   //   printf("fire pc %x branch %x inst %x\n", runahead.io.pc, runahead.io.branch, io.out(0).bits.cf.instr)
   // }
-
+  }
   if (!p.FPGAPlatform) {
     BoringUtils.addSource(decoder1.io.isWFI | decoder2.io.isWFI, "isWFI")
   }

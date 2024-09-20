@@ -21,7 +21,6 @@ import chisel3.util._
 
 import bus.axi4._
 import utils._
-import difftest._
 
 class AXI4UART extends AXI4SlaveModule(new AXI4Lite, _extra = new UARTIO)
 {

@@ -496,6 +496,7 @@ class ROB(implicit val p: NutCoreConfig) extends NutCoreModule with HasInstrType
   BoringUtils.addSource(retireMultiTerms, "perfCntCondMultiCommit")
   
   if (!p.FPGAPlatform) {
+    if (EnableDifftest) {
     for (i <- 0 until RetireWidth) {
       val difftest_commit = Module(new DifftestInstrCommit)
       difftest_commit.io.clock    := clock
@@ -520,6 +521,7 @@ class ROB(implicit val p: NutCoreConfig) extends NutCoreModule with HasInstrType
       difftest_wb.io.dest := RegNext(io.wb(i).rfDest)
       difftest_wb.io.data := RegNext(io.wb(i).rfData)
     }
+  }
   } else {
     BoringUtils.addSource(retireATerm, "ilaWBUvalid")
     BoringUtils.addSource(SignExt(decode(ringBufferTail)(0).cf.pc, AddrBits), "ilaWBUpc")

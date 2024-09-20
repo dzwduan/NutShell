@@ -22,7 +22,6 @@ import chisel3.util._
 import bus.simplebus._
 import bus.axi4._
 import device._
-import difftest._
 
 class SimMMIO extends Module {
   val io = IO(new Bundle {

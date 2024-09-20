@@ -640,10 +640,14 @@ class Backend_ooo(implicit val p: NutCoreConfig) extends NutCoreModule with HasR
   BoringUtils.addSource(!io.in(0).valid, "perfCntCondMdpNoInst")
 
   if (!p.FPGAPlatform) {
+
+    if (EnableDifftest) {
     val difftestGpr = Module(new DifftestArchIntRegState)
     difftestGpr.io.clock  := clock
     difftestGpr.io.coreid := 0.U // TODO
     difftestGpr.io.gpr    := VecInit((0 to NRReg-1).map(i => rf.read(i.U)))
+    }
+
   }
 
   if (!p.FPGAPlatform) {
@@ -655,6 +659,7 @@ class Backend_ooo(implicit val p: NutCoreConfig) extends NutCoreModule with HasR
     BoringUtils.addSink(instrCnt, "simInstrCnt")
     BoringUtils.addSource(nutcoretrap, "nutcoretrap")
 
+    if (EnableDifftest) {
     val difftest = Module(new DifftestTrapEvent)
     difftest.io.clock    := clock
     difftest.io.coreid   := 0.U // TODO: nutshell does not support coreid auto config
@@ -663,6 +668,7 @@ class Backend_ooo(implicit val p: NutCoreConfig) extends NutCoreModule with HasR
     difftest.io.pc       := csrrs.io.out.bits.decode.cf.pc
     difftest.io.cycleCnt := cycleCnt
     difftest.io.instrCnt := instrCnt
+    }
   }
   
 }

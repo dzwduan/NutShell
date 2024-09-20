@@ -27,7 +27,7 @@ import bus.axi4._
 import device.AXI4RAM
 import nutcore._
 import utils.GTimer
-import difftest._
+
 
 class SimTop extends Module {
   val io = IO(new Bundle{
