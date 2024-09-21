@@ -71,10 +71,10 @@ object TopMain extends App {
   else {
     ChiselGeneratorAnnotation(() => new Top)
   }
-  var exe_args = newArgs.filter{
+  var exe_args = args.filter{
     value => value.forall(char => char!='=')
   }
-  (new ChiselStage).execute(newArgs, Seq(generator)
+  (new ChiselStage).execute(args, Seq(generator)
     :+ CIRCTTargetAnnotation(CIRCTTarget.SystemVerilog)
     :+ FirtoolOption("--disable-annotation-unknown")
   )
