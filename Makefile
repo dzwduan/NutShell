@@ -42,7 +42,8 @@ build/top.zip: $(TOP_V)
 verilog: $(TOP_V)
 
 SIM_TOP = SimTop
-SIM_TOP_V = $(BUILD_DIR)/$(SIM_TOP).v
+RTL_DIR = $(BUILD_DIR)/rtl
+SIM_TOP_V = $(RTL_DIR)/$(SIM_TOP).sv
 $(SIM_TOP_V): $(SCALA_FILE) $(TEST_FILE)
 	mkdir -p $(@D)
 	mill generator.test.runMain $(SIMTOP) --target-dir $(@D) BOARD=sim CORE=$(CORE)
