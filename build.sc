@@ -21,7 +21,7 @@ trait HasChisel extends ScalaModule {
 trait CommonNS extends SbtModule with CommonModule with HasChisel
 
 object difftest extends CommonNS {
-  override def millSourcePath = os.pwd / "difftest"
+  override def millSourcePath = os.pwd / "cosim-framework"
 }
 
 object generator extends CommonNS {
