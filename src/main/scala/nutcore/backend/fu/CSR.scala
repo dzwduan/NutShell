@@ -361,7 +361,7 @@ class CSR(implicit val p: NutCoreConfig)
   val scounteren = RegInit(UInt(XLEN.W), 0.U)
 
   if (Settings.get("HasDTLB")) {
-    BoringUtils.addSource(satp, "CSRSATP")
+    BoringUtils.addSource(WireInit(satp), "CSRSATP")
   }
 
   // User-Level CSRs
@@ -376,8 +376,8 @@ class CSR(implicit val p: NutCoreConfig)
   BoringUtils.addSink(setLr, "set_lr")
   BoringUtils.addSink(setLrVal, "set_lr_val")
   BoringUtils.addSink(setLrAddr, "set_lr_addr")
-  BoringUtils.addSource(lr, "lr")
-  BoringUtils.addSource(lrAddr, "lr_addr")
+  BoringUtils.addSource(WireInit(lr), "lr")
+  BoringUtils.addSource(WireInit(lrAddr), "lr_addr")
 
   when(setLr) {
     lr := setLrVal
@@ -713,7 +713,7 @@ class CSR(implicit val p: NutCoreConfig)
     x := priviledgedEnableDetect(y)
   }
   val intrVec = mie(11, 0) & mipRaiseIntr.asUInt & intrVecEnable.asUInt
-  BoringUtils.addSource(intrVec, "intrVecIDU")
+  BoringUtils.addSource(WireInit(intrVec), "intrVecIDU")
   // val intrNO = PriorityEncoder(intrVec)
 
   val intrNO = IntPriority.foldRight(0.U)((i: Int, sum: UInt) =>
@@ -737,7 +737,7 @@ class CSR(implicit val p: NutCoreConfig)
   csrExceptionVec(loadPageFault) := hasLoadPageFault
   csrExceptionVec(storePageFault) := hasStorePageFault
   val iduExceptionVec = io.cfIn.exceptionVec
-  val raiseExceptionVec = csrExceptionVec.asUInt() | iduExceptionVec.asUInt()
+  val raiseExceptionVec = csrExceptionVec.asUInt | iduExceptionVec.asUInt
   val raiseException = raiseExceptionVec.orR
   val exceptionNO = ExcPriority.foldRight(0.U)((i: Int, sum: UInt) =>
     Mux(raiseExceptionVec(i), i.U, sum)
@@ -761,8 +761,8 @@ class CSR(implicit val p: NutCoreConfig)
   Debug(
     raiseExceptionIntr,
     "excin %b excgen %b",
-    csrExceptionVec.asUInt(),
-    iduExceptionVec.asUInt()
+    csrExceptionVec.asUInt,
+    iduExceptionVec.asUInt
   )
   Debug(
     raiseExceptionIntr,
@@ -888,8 +888,8 @@ class CSR(implicit val p: NutCoreConfig)
     "McsrInstr" -> (0xb09, "perfCntCondMcsrInstr"),
     "MloadInstr" -> (0xb0a, "perfCntCondMloadInstr"),
     "MmmioInstr" -> (0xb0b, "perfCntCondMmmioInstr"),
-    "MicacheHit" -> (0xb0c, "perfCntCondMicacheHit"),
-    "MdcacheHit" -> (0xb0d, "perfCntCondMdcacheHit"),
+    // "MicacheHit" -> (0xb0c, "perfCntCondMicacheHit"),
+    // "MdcacheHit" -> (0xb0d, "perfCntCondMdcacheHit"),
     "MmulInstr" -> (0xb0e, "perfCntCondMmulInstr"),
     "MifuFlush" -> (0xb0f, "perfCntCondMifuFlush"),
     "MbpBRight" -> (0xb10, "MbpBRight"),
@@ -900,7 +900,7 @@ class CSR(implicit val p: NutCoreConfig)
     "MbpIWrong" -> (0xb15, "MbpIWrong"),
     "MbpRRight" -> (0xb16, "MbpRRight"),
     "MbpRWrong" -> (0xb17, "MbpRWrong"),
-    "Ml2cacheHit" -> (0xb18, "perfCntCondMl2cacheHit"),
+    // "Ml2cacheHit" -> (0xb18, "perfCntCondMl2cacheHit"),
     "Custom1" -> (0xb19, "Custom1"),
     "Custom2" -> (0xb1a, "Custom2"),
     "Custom3" -> (0xb1b, "Custom3"),
@@ -984,9 +984,11 @@ class CSR(implicit val p: NutCoreConfig)
   val pendingLS = WireInit(0.U(5.W))
   val pendingSCmt = WireInit(0.U(5.W))
   val pendingSReq = WireInit(0.U(5.W))
-  BoringUtils.addSink(pendingLS, "perfCntSrcMpendingLS")
-  BoringUtils.addSink(pendingSCmt, "perfCntSrcMpendingSCmt")
-  BoringUtils.addSink(pendingSReq, "perfCntSrcMpendingSReq")
+  if (EnableOutOfOrderExec) {
+    BoringUtils.addSink(pendingLS, "perfCntSrcMpendingLS")
+    BoringUtils.addSink(pendingSCmt, "perfCntSrcMpendingSCmt")
+    BoringUtils.addSink(pendingSReq, "perfCntSrcMpendingSReq")
+  }
   when(perfCntCond(0xb03 & 0x7f)) {
     perfCnts(0xb02 & 0x7f) := perfCnts(0xb02 & 0x7f) + 2.U
   } // Minstret += 2 when MultiCommit
@@ -1024,11 +1026,11 @@ class CSR(implicit val p: NutCoreConfig)
   if (!p.FPGAPlatform) {
     // to monitor
     BoringUtils.addSource(
-      readWithScala(perfCntList("Mcycle")._1),
+      WireInit(readWithScala(perfCntList("Mcycle")._1)),
       "simCycleCnt"
     )
     BoringUtils.addSource(
-      readWithScala(perfCntList("Minstret")._1),
+      WireInit(readWithScala(perfCntList("Minstret")._1)),
       "simInstrCnt"
     )
 
